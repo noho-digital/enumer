@@ -121,7 +121,7 @@ package %s;
 		parts = append(parts, fmt.Sprintf(header,  strings.Join(os.Args[1:], " "), *protoPkg, *protoGoPkg))
 		// Run generate for each type.
 		for _, typeName := range types {
-			values := g.values(typeName)
+			values := g.values(typeName, typeName, "screaming-snake", false)
 			stanza := g.createProtoEnumStanza(values, typeName)
 			parts = append(parts, stanza)
 		}
@@ -396,7 +396,7 @@ func (g *Generator) replaceValuesWithLineComment(values []Value) {
 	}
 }
 
-func (g *Generator) values(typeName string) []Value {
+func (g *Generator) values(typeName string, trimPrefix string,  transformMethod string, lineComment bool) []Value {
 	var values []Value
 	for _, file := range g.pkg.files {
 		// Set the state for this run of the walker.
@@ -407,15 +407,9 @@ func (g *Generator) values(typeName string) []Value {
 			values = append(values, file.values...)
 		}
 	}
-	return values
-}
-// generate produces the String method for the named type.
-func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeSQL, includeText bool, transformMethod string, trimPrefix string, lineComment bool) {
-	values := g.values(typeName)
 	if len(values) == 0 {
-		log.Fatalf("no values defined for type %s", typeName)
+		return values
 	}
-
 	g.trimValueNames(values, trimPrefix)
 
 	g.transformValueNames(values, transformMethod)
@@ -424,6 +418,15 @@ func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeS
 		g.replaceValuesWithLineComment(values)
 	}
 
+
+	return values
+}
+// generate produces the String method for the named type.
+func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeSQL, includeText bool, transformMethod string, trimPrefix string, lineComment bool) {
+	values := g.values(typeName, trimPrefix, transformMethod, lineComment)
+	if len(values) == 0 {
+		log.Fatalf("no values defined for type %s", typeName)
+	}
 	runs := splitIntoRuns(values)
 	// The decision of which pattern to use depends on the number of
 	// runs in the numbers. If there's only one, it's easy. For more than
