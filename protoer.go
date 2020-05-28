@@ -15,7 +15,7 @@ func (g *Generator) createProtoEnumStanza(values []Value, typeName string) strin
 	for i, value := range values {
 		n := value.name
 		if i == 0 {
-			if strings.ToLower(value.name) == "undefined") {
+			if strings.ToLower(value.name) == "undefined" {
 				n = strings.Join([]string{n, strcase.ToScreamingSnake(typeName)}, "_")
 			}
 		}
