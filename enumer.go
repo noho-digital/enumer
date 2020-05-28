@@ -21,7 +21,7 @@ func Parse%[1]s(s string) (%[1]s, error) {
 
 // Arguments to format are:
 //	[1]: type name
-const stringValuesMethod = `// %[1]sValues returns all values of the enum
+const stringValuesAndNamesSlicesMethods = `// %[1]sValues returns all values of the enum
 func %[1]sValues() []%[1]s {
 	return _%[1]sValues
 }
@@ -52,6 +52,7 @@ func (i %[1]s) IsA%[1]s() bool {
 	return ok
 }
 `
+
 
 func (g *Generator) buildBasicExtras(runs [][]Value, typeName string, runsThreshold int) {
 	// At this moment, either "g.declareIndexAndNameVars()" or "g.declareNameVars()" has been called
@@ -96,7 +97,7 @@ func (g *Generator) buildBasicExtras(runs [][]Value, typeName string, runsThresh
 
 	// Print the basic extra methods
 	g.Printf(stringNameToValueMethod, typeName)
-	g.Printf(stringValuesMethod, typeName)
+	g.Printf(stringValuesAndNamesSlicesMethods, typeName)
 	if len(runs) <= runsThreshold {
 		g.Printf(stringBelongsMethodLoop, typeName)
 	} else { // There is a map of values, the code is simpler then
