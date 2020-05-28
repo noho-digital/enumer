@@ -7,13 +7,14 @@
 //Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).
 //It started as a fork of Rob Pike’s Stringer tool
 //
-//Please visit http://github.com/alvaroloes/enumer for a comprehensive documentation
+//Please visit http://github.com/noho-digital/enumer for a comprehensive documentation
 package main
 
 import (
 	"bytes"
 	"flag"
 	"fmt"
+	"github.com/iancoleman/strcase"
 	"go/ast"
 	exact "go/constant"
 	"go/format"
@@ -27,8 +28,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
-
-	"github.com/pascaldekloe/name"
 )
 
 type arrayFlags []string
@@ -44,14 +43,14 @@ func (af *arrayFlags) Set(value string) error {
 
 var (
 	typeNames       = flag.String("type", "", "comma-separated list of type names; must be set")
-	sql             = flag.Bool("sql", false, "if true, the Scanner and Valuer interface will be implemented.")
-	json            = flag.Bool("json", false, "if true, json marshaling methods will be generated. Default: false")
-	yaml            = flag.Bool("yaml", false, "if true, yaml marshaling methods will be generated. Default: false")
-	text            = flag.Bool("text", false, "if true, text marshaling methods will be generated. Default: false")
-	output          = flag.String("output", "", "output file name; default srcdir/<type>_enumer.go")
-	transformMethod = flag.String("transform", "noop", "enum item name transformation method. Default: noop")
+	sql             = flag.Bool("sql", true, "if true, the Scanner and Valuer interface will be implemented.")
+	json            = flag.Bool("json", true, "if true, json marshaling methods will be generated. Default: false")
+	yaml            = flag.Bool("yaml", true, "if true, yaml marshaling methods will be generated. Default: false")
+	text            = flag.Bool("text", true, "if true, text marshaling methods will be generated. Default: flase")
+	output          = flag.String("output", "", "output file name; default srcdir/<type>_enumer_gen.go")
+	transformMethod = flag.String("transform", "noop", "enum item name transformation method (bno. Default: noop")
 	trimPrefix      = flag.String("trimprefix", "", "transform each item name by removing a prefix. Default: \"\"")
-	lineComment     = flag.Bool("linecomment", false, "use line comment text as printed text when present")
+	lineComment     = flag.Bool("linecomment", true, "use line comment text as printed text when present")
 )
 
 var comments arrayFlags
@@ -66,7 +65,7 @@ func Usage() {
 	fmt.Fprintf(os.Stderr, "\tenumer [flags] -type T [directory]\n")
 	fmt.Fprintf(os.Stderr, "\tenumer [flags] -type T files... # Must be a single package\n")
 	fmt.Fprintf(os.Stderr, "For more information, see:\n")
-	fmt.Fprintf(os.Stderr, "\thttps://github.com/alvaroloes/enumer\n")
+	fmt.Fprintf(os.Stderr, "\thttps://github.com/noho-digital/enumer\n")
 	fmt.Fprintf(os.Stderr, "Flags:\n")
 	flag.PrintDefaults()
 }
@@ -130,7 +129,7 @@ func main() {
 	// Figure out filename to write to
 	outputName := *output
 	if outputName == "" {
-		baseName := fmt.Sprintf("%s_enumer.go", types[0])
+		baseName := fmt.Sprintf("%s_enumer_gen.go", types[0])
 		outputName = filepath.Join(dir, strings.ToLower(baseName))
 	}
 
@@ -309,19 +308,37 @@ func (pkg *Package) check(fs *token.FileSet, astFiles []*ast.File) {
 	pkg.typesPkg = typesPkg
 }
 
-func (g *Generator) transformValueNames(values []Value, transformMethod string) {
-	var sep rune
+type transformer func(string) string
+
+func getTransformer(transformMethod string) transformer {
 	switch transformMethod {
 	case "snake":
-		sep = '_'
+		return strcase.ToSnake
 	case "kebab":
-		sep = '-'
+		return strcase.ToKebab
+	case "screaming-snake":
+		return strcase.ToScreamingSnake
+	case "camel":
+		return strcase.ToCamel
+	case "screaming-kebab":
+		return strcase.ToScreamingKebab
+	case "lower-camel":
+		return strcase.ToLowerCamel
+	case "noop":
+		f := func(s string) string {
+			return s
+		}
+		return f
 	default:
-		return
+		panic("unrecognized transform method " + transformMethod)
 	}
+}
 
+func (g *Generator) transformValueNames(values []Value, transformMethod string) {
+
+	transformer := getTransformer(transformMethod)
 	for i := range values {
-		values[i].name = strings.ToLower(name.Delimit(values[i].name, sep))
+		values[i].name = transformer(values[i].name)
 	}
 }
 

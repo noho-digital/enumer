@@ -7,11 +7,13 @@ import "fmt"
 const stringNameToValueMethod = `// %[1]sString retrieves an enum value from the enum constants string name.
 // Throws an error if the param is not part of the enum.
 func %[1]sString(s string) (%[1]s, error) {
+	
 	if val, ok := _%[1]sNameToValueMap[s]; ok {
 		return val, nil
 	}
 	return 0, fmt.Errorf("%%s does not belong to %[1]s values", s)
 }
+
 `
 
 // Arguments to format are:
@@ -19,6 +21,10 @@ func %[1]sString(s string) (%[1]s, error) {
 const stringValuesMethod = `// %[1]sValues returns all values of the enum
 func %[1]sValues() []%[1]s {
 	return _%[1]sValues
+}
+
+func %[1]sNames() []string {
+	return _%[1]sNames
 }
 `
 
@@ -52,6 +58,15 @@ func (g *Generator) buildBasicExtras(runs [][]Value, typeName string, runsThresh
 	for _, values := range runs {
 		for _, value := range values {
 			g.Printf("\t%s, ", value.str)
+		}
+	}
+	g.Printf("}\n\n")
+
+	// Print the slice of values
+	g.Printf("\nvar _%sNames = []string{", typeName)
+	for _, values := range runs {
+		for _, value := range values {
+			g.Printf("\t\"%s\", ", value.name)
 		}
 	}
 	g.Printf("}\n\n")
