@@ -31,7 +31,7 @@ import (
 )
 
 type arrayFlags []string
-
+const defaultBaseName = "enums"
 func (af arrayFlags) String() string {
 	return strings.Join(af, "")
 }
@@ -47,14 +47,14 @@ var (
 	json            = flag.Bool("json", true, "if true, json marshaling methods will be generated. Default: false")
 	yaml            = flag.Bool("yaml", true, "if true, yaml marshaling methods will be generated. Default: false")
 	text            = flag.Bool("text", true, "if true, text marshaling methods will be generated. Default: flase")
-	output          = flag.String("output", "", "output file name; default srcdir/<type>_enumer_gen.go")
+	output          = flag.String("output", "", "output file name; default srcdir/<type>_gen.go if one type specified, srcdir/enums_gen.go if more than one")
 	transformMethod = flag.String("transform", "noop", "enum item name transformation method (bno. Default: noop")
 	trimPrefix      = flag.String("trimprefix", "", "transform each item name by removing a prefix. Default: \"\"")
 	lineComment     = flag.Bool("linecomment", true, "use line comment text as printed text when present")
 	protoOnly        = flag.Bool("proto-only", false, "output file name; default srcdir/<type>_enumer_gen.go")
 	proto           = flag.Bool("proto", false, "output file name; default srcdir/<type>_enumer_gen.go")
-	protoOutput     = flag.String("proto-output", "", "proto output file name; default srcdir/<type>.proto")
-	protoPkg        =  flag.String("proto-pkg", "", "proto file pkg name default is dirname of proto output file")
+	protoOutput     = flag.String("proto-output", "", "proto output file name; default srcdir/<type>.proto if one type srcdir/enums.proto if more than one")
+	protoPkg        =  flag.String("proto-pkg", "", "proto pkg name (default pb)")
 	protoGoPkg 		= flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
 )
 
@@ -126,13 +126,17 @@ package %s;
 			parts = append(parts, stanza)
 		}
 		// Format the output.
-		outputName := *protoOutput
-		if outputName == "" {
-			baseName := fmt.Sprintf("%s.proto", types[0])
-			outputName = filepath.Join(dir, strings.ToLower(baseName))
+		protoPath := *protoOutput
+		if protoPath == "" {
+			baseName := defaultBaseName
+			if len(types) == 1 {
+				baseName = types[0]
+			}
+			name := strings.ToLower(fmt.Sprintf("%s.proto", baseName))
+			protoPath = filepath.Join(dir, name)
 		}
 		text := strings.Join(parts, "\n")
-		write(outputName, types, []byte(text))
+		write(protoPath, types, []byte(text))
 	}
 	if *protoOnly {
 		return
@@ -160,12 +164,16 @@ package %s;
 
 	// Format the output.
 	src := g.format()
-	outputName := *output
-	if outputName == "" {
-		baseName := fmt.Sprintf("%s_enumer_gen.go", types[0])
-		outputName = filepath.Join(dir, strings.ToLower(baseName))
+	outputPath := *output
+	if outputPath == "" {
+		baseName := defaultBaseName
+		if len(types) == 1 {
+			baseName = types[0]
+		}
+		name := strings.ToLower(fmt.Sprintf("%s_gen.go", baseName))
+		outputPath = filepath.Join(dir, name)
 	}
-	write(outputName, types, src)
+	write(outputPath, types, src)
 }
 
 func write(outputName string, types []string, src []byte) {
