@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (g *Generator) buildProtoEnum(values []Value, typeName string) {
+func (g *Generator) createProtoEnumStanza(values []Value, typeName string) string {
 	tmpl := `enum %s {
 %s
 }
@@ -19,5 +19,5 @@ func (g *Generator) buildProtoEnum(values []Value, typeName string) {
 		}
 		el = append(el, fmt.Sprintf("    %s = %s;", n, value.str))
 	}
-	g.Printf(fmt.Sprintf(tmpl, typeName, strings.Join(el, "\n")))
+	return fmt.Sprintf(tmpl, typeName, strings.Join(el, "\n"))
 }
