@@ -426,6 +426,10 @@ func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeS
 		g.replaceValuesWithLineComment(values)
 	}
 
+	if protoOnly {
+		g.buildProtoEnum(values, typeName)
+		return
+	}
 	runs := splitIntoRuns(values)
 	// The decision of which pattern to use depends on the number of
 	// runs in the numbers. If there's only one, it's easy. For more than
@@ -440,6 +444,7 @@ func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeS
 	// is very low. And bitmasks probably deserve their own analysis,
 	// to be done some other day.
 	const runsThreshold = 10
+
 	switch {
 	case len(runs) == 1:
 		g.buildOneRun(runs, typeName)
@@ -448,10 +453,7 @@ func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeS
 	default:
 		g.buildMap(runs, typeName)
 	}
-	if protoOnly {
-		g.buildProtoEnum(runs, typeName, runsThreshold)
-		return
-	}
+
 	g.buildBasicExtras(runs, typeName, runsThreshold)
 	if includeJSON {
 		g.buildJSONMethods(runs, typeName, runsThreshold)
