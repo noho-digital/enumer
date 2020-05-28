@@ -14,6 +14,9 @@ func %[1]sString(s string) (%[1]s, error) {
 	return 0, fmt.Errorf("%%s does not belong to %[1]s values", s)
 }
 
+func Parse%[1]s(s string) (%[1]s, error) {
+	return %[1]sString(s)
+}
 `
 
 // Arguments to format are:
