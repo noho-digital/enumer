@@ -140,7 +140,7 @@ func main() {
 		if len(types) == 1 {
 			baseName = types[0]
 		}
-		name := strings.ToLower(fmt.Sprintf("%s_gen.go", baseName))
+		name := strings.ToLower(fmt.Sprintf("%s_enum_gen.go", baseName))
 		outputPath = filepath.Join(dir, name)
 	}
 	write(outputPath, src)
