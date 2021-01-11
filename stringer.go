@@ -63,6 +63,7 @@ var (
 	graphqlDir      = flag.String("graphql-dir", "", "graphql output directory name; required if graphql-output not provided")
 	graphqlOutput   = flag.String("graphql-output", "", "graphql output file name; default srcdir/<graphqlPkg>/<type>_gen.graphql")
 	graphqlOnly     = flag.Bool("graphql-only", false, "whether only to generate graphql types (and do not do any generation)")
+	graphqlPrefix   = flag.String("graphql-prefix", "", "optional prefix for graphql type; default: <graphqlPkg><typeName>")
 )
 
 var comments arrayFlags
