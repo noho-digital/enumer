@@ -57,8 +57,11 @@ var (
 	protoOnly       = flag.Bool("proto-only", false, "whether only generate enum protos and dont do any go generation")
 	proto           = flag.Bool("proto", false, "wheter or not to generate protobuffer enum counterpart file")
 	protoOutput     = flag.String("proto-output", "", "proto output file name; default srcdir/<protoPkg>/<type>.proto if one type srcdir/<protoPkg>/enums.proto if more than one")
-	protoPkg        = flag.String("proto-pkg", "", "proto pkg name (default pb)")
-	protoGoPkg      = flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
+	protoPkg        =  flag.String("proto-pkg", "", "proto pkg name (default pb)")
+	protoGoPkg 		= flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
+	graphql         = flag.Bool("graphql", false, "whether or not to generate graphql types")
+	graphqlDir      = flag.String("graphql-dir", "", "graphql output directory name; required if graphql-output not provided")
+	graphqlOutput   = flag.String("graphql-output", "", "graphql output file name; default srcdir/<graphqlPkg>/<type>_gen.graphql")
 )
 
 var comments arrayFlags
