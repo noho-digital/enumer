@@ -14,24 +14,27 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"github.com/iancoleman/strcase"
 	"go/ast"
 	exact "go/constant"
 	"go/format"
 	"go/importer"
 	"go/token"
 	"go/types"
-	"golang.org/x/tools/go/packages"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/iancoleman/strcase"
+	"golang.org/x/tools/go/packages"
 )
 
 type arrayFlags []string
+
 const defaultBaseName = "enums"
+
 func (af arrayFlags) String() string {
 	return strings.Join(af, "")
 }
@@ -51,11 +54,11 @@ var (
 	transformMethod = flag.String("transform", "noop", "enum item name transformation method (bno. Default: noop")
 	trimPrefix      = flag.String("trimprefix", "", "transform each item name by removing a prefix. Default: \"\"")
 	lineComment     = flag.Bool("linecomment", true, "use line comment text as printed text when present")
-	protoOnly        = flag.Bool("proto-only", false, "whether only generate enum protos and dont do any go generation")
+	protoOnly       = flag.Bool("proto-only", false, "whether only generate enum protos and dont do any go generation")
 	proto           = flag.Bool("proto", false, "wheter or not to generate protobuffer enum counterpart file")
 	protoOutput     = flag.String("proto-output", "", "proto output file name; default srcdir/<protoPkg>/<type>.proto if one type srcdir/<protoPkg>/enums.proto if more than one")
-	protoPkg        =  flag.String("proto-pkg", "", "proto pkg name (default pb)")
-	protoGoPkg 		= flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
+	protoPkg        = flag.String("proto-pkg", "", "proto pkg name (default pb)")
+	protoGoPkg      = flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
 )
 
 var comments arrayFlags
@@ -152,7 +155,7 @@ func write(outputPath string, src []byte) {
 	sfx := filepath.Ext(name)
 	baseName := filepath.Base(strings.TrimSuffix(name, sfx))
 	// Write to tmpfile first
-	tmpFile, err := ioutil.TempFile(filepath.Dir(baseName), baseName + sfx)
+	tmpFile, err := ioutil.TempFile(filepath.Dir(baseName), baseName+sfx)
 	if err != nil {
 		log.Fatalf("creating temporary file for output: %s", err)
 	}
@@ -171,6 +174,7 @@ func write(outputPath string, src []byte) {
 	}
 
 }
+
 // isDirectory reports whether the named file is a directory.
 func isDirectory(name string) bool {
 	info, err := os.Stat(name)
@@ -374,7 +378,7 @@ func (g *Generator) replaceValuesWithLineComment(values []Value) {
 	}
 }
 
-func (g *Generator) values(typeName string, trimPrefix string,  transformMethod string, lineComment bool) []Value {
+func (g *Generator) values(typeName string, trimPrefix string, transformMethod string, lineComment bool) []Value {
 	var values []Value
 	for _, file := range g.pkg.files {
 		// Set the state for this run of the walker.
@@ -396,9 +400,9 @@ func (g *Generator) values(typeName string, trimPrefix string,  transformMethod 
 		g.replaceValuesWithLineComment(values)
 	}
 
-
 	return values
 }
+
 // generate produces the String method for the named type.
 func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeSQL, includeText bool, transformMethod string, trimPrefix string, lineComment bool) {
 	values := g.values(typeName, trimPrefix, transformMethod, lineComment)
