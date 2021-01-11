@@ -62,6 +62,7 @@ var (
 	graphql         = flag.Bool("graphql", false, "whether or not to generate graphql types")
 	graphqlDir      = flag.String("graphql-dir", "", "graphql output directory name; required if graphql-output not provided")
 	graphqlOutput   = flag.String("graphql-output", "", "graphql output file name; default srcdir/<graphqlPkg>/<type>_gen.graphql")
+	graphqlOnly     = flag.Bool("graphql-only", false, "whether only to generate graphql types (and do not do any generation)")
 )
 
 var comments arrayFlags
@@ -115,6 +116,12 @@ func main() {
 		g.buildProto(types, dir)
 	}
 	if *protoOnly {
+		return
+	}
+	if *graphql {
+		g.buildGraphQL(types, dir)
+	}
+	if *graphqlOnly {
 		return
 	}
 	// Print the header and package clause.
