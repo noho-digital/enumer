@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/iancoleman/strcase"
 	"path/filepath"
 	"strings"
+
+	"github.com/iancoleman/strcase"
 )
 
 // var _defaultProtoPkgName = "pb"
@@ -43,13 +44,8 @@ func (g *Generator) createGraphQLEnumStanza(values []Value, typeName string) str
 }
 `
 	var el []string
-	for i, value := range values {
+	for _, value := range values {
 		n := value.name
-		if i == 0 {
-			if strings.ToLower(value.name) == "undefined" {
-				n = strings.Join([]string{n, strcase.ToScreamingSnake(typeName)}, "_")
-			}
-		}
 		el = append(el, fmt.Sprintf("    %s", n))
 	}
 	return fmt.Sprintf(tmpl, typeName, strings.Join(el, "\n"))
