@@ -356,7 +356,6 @@ func getTransformer(transformMethod string) transformer {
 }
 
 func (g *Generator) transformValueNames(values []Value, transformMethod string) {
-
 	transformer := getTransformer(transformMethod)
 	for i := range values {
 		values[i].name = transformer(values[i].name)
