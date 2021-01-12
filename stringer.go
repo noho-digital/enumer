@@ -60,6 +60,7 @@ var (
 	protoPkg        = flag.String("proto-pkg", "", "proto pkg name (default pb)")
 	protoGoPkg      = flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
 	graphql         = flag.Bool("graphql", false, "whether or not to generate graphql types")
+	graphqlPkg      = flag.String("graphql-pkg", "", "graphql package name (default pb)")
 	graphqlDir      = flag.String("graphql-dir", "", "graphql output directory name; required if graphql-output not provided")
 	graphqlOutput   = flag.String("graphql-output", "", "graphql output file name; default srcdir/<graphqlPkg>/<type>_gen.graphql")
 	graphqlOnly     = flag.Bool("graphql-only", false, "whether only to generate graphql types (and do not do any generation)")
