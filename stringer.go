@@ -65,6 +65,8 @@ var (
 	graphqlOutput   = flag.String("graphql-output", "", "graphql output file name; default srcdir/<graphqlPkg>/<type>_gen.graphql")
 	graphqlOnly     = flag.Bool("graphql-only", false, "whether only to generate graphql types (and do not do any generation)")
 	graphqlPrefix   = flag.String("graphql-prefix", "", "optional prefix for graphql type; default: <graphqlPkg><typeName>")
+	gqlShouldSuffixUndef = flag.Bool("gql-should-suffix-undef", false, "whether to add a suffix to UNDEFINED")
+	gqlUndefSuffix  = flag.String("gql-undef-suffix", "", "optional suffix for the UNDEFINED case only (default: type name)")
 )
 
 var comments arrayFlags

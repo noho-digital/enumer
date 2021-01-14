@@ -25,7 +25,7 @@ func (g *Generator) buildGraphQL(types []string, dir string) {
 			enumName = *graphqlPrefix + typeName
 		}
 		values := g.values(typeName, typeName, "screaming-snake", false)
-		stanza := g.createGraphQLEnumStanza(values, enumName)
+		stanza := g.createGraphQLEnumStanza(values, enumName, typeName)
 		parts = append(parts, stanza)
 	}
 
@@ -43,14 +43,23 @@ func (g *Generator) buildGraphQL(types []string, dir string) {
 	write(graphqlPath, []byte(text))
 }
 
-func (g *Generator) createGraphQLEnumStanza(values []Value, enumName string) string {
+func (g *Generator) createGraphQLEnumStanza(values []Value, enumName string, typeName string) string {
 	tmpl := `enum %s {
 %s
 }
 `
 	var el []string
-	for _, value := range values {
+	for i, value := range values {
 		n := value.name
+		if i == 0 {
+			if *gqlShouldSuffixUndef && strings.ToLower(value.name) == "undefined" {
+				suffix := typeName
+				if *gqlUndefSuffix != "" {
+					suffix = *gqlUndefSuffix
+				}
+				n = strings.Join([]string{n, strcase.ToScreamingSnake(suffix)}, "_")
+			}
+		}
 		el = append(el, fmt.Sprintf("    %s", n))
 	}
 	return fmt.Sprintf(tmpl, enumName, strings.Join(el, "\n"))
