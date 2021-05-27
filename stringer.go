@@ -46,10 +46,10 @@ func (af *arrayFlags) Set(value string) error {
 
 var (
 	typeNames       = flag.String("type", "", "comma-separated list of type names; must be set")
-	sql             = flag.Bool("sql", true, "if true, the Scanner and Valuer interface will be implemented.")
-	json            = flag.Bool("json", true, "if true, json marshaling methods will be generated. Default: false")
-	yaml            = flag.Bool("yaml", true, "if true, yaml marshaling methods will be generated. Default: false")
-	text            = flag.Bool("text", true, "if true, text marshaling methods will be generated. Default: flase")
+	sql             = flag.Bool("sql", false, "if true, the Scanner and Valuer interface will be implemented. Default: false")
+	json            = flag.Bool("json", false, "if true, json marshaling methods will be generated. Default: false")
+	yaml            = flag.Bool("yaml", false, "if true, yaml marshaling methods will be generated. Default: false")
+	text            = flag.Bool("text", false, "if true, text marshaling methods will be generated. Default: flase")
 	output          = flag.String("output", "", "output file name; default srcdir/<type>_gen.go if one type specified, srcdir/enums_gen.go if more than one")
 	transformMethod = flag.String("transform", "noop", "enum item name transformation method (bno. Default: noop")
 	trimPrefix      = flag.String("trimprefix", "", "transform each item name by removing a prefix. Default: \"\"")
