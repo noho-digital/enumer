@@ -15,11 +15,15 @@ func (g *Generator) buildGraphQL(types []string, dir string) {
 	parts = append(parts, fmt.Sprintf(header, strings.Join(os.Args[1:], " ")))
 	// Run generate for each type.
 	for _, typeName := range types {
+		trim := typeName
+		if trimPrefix != nil {
+			trim = *trimPrefix
+		}
 		enumName := strings.Title(g.pkg.name) + typeName
 		if graphqlPrefix != nil && len(*graphqlPrefix) > 0 {
 			enumName = *graphqlPrefix + typeName
 		}
-		values := g.values(typeName, typeName, "screaming-snake", false)
+		values := g.values(typeName, trim, "screaming-snake", false)
 		stanza := g.createGraphQLEnumStanza(values, enumName, typeName)
 		parts = append(parts, stanza)
 	}
