@@ -2,12 +2,13 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build go1.5
 // +build go1.5
 
-//Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).
-//It started as a fork of Rob Pike’s Stringer tool
+// Enumer is a tool to generate Go code that adds useful methods to Go enums (constants with a specific type).
+// It started as a fork of Rob Pike’s Stringer tool
 //
-//Please visit http://github.com/noho-digital/enumer for a comprehensive documentation
+// Please visit http://github.com/noho-digital/enumer for a comprehensive documentation
 package main
 
 import (
@@ -45,27 +46,27 @@ func (af *arrayFlags) Set(value string) error {
 }
 
 var (
-	typeNames       = flag.String("type", "", "comma-separated list of type names; must be set")
-	sql             = flag.Bool("sql", true, "if true, the Scanner and Valuer interface will be implemented.")
-	json            = flag.Bool("json", true, "if true, json marshaling methods will be generated. Default: false")
-	yaml            = flag.Bool("yaml", true, "if true, yaml marshaling methods will be generated. Default: false")
-	text            = flag.Bool("text", true, "if true, text marshaling methods will be generated. Default: flase")
-	output          = flag.String("output", "", "output file name; default srcdir/<type>_gen.go if one type specified, srcdir/enums_gen.go if more than one")
-	transformMethod = flag.String("transform", "noop", "enum item name transformation method (bno. Default: noop")
-	trimPrefix      = flag.String("trimprefix", "", "transform each item name by removing a prefix. Default: \"\"")
-	lineComment     = flag.Bool("linecomment", true, "use line comment text as printed text when present")
-	protoOnly       = flag.Bool("proto-only", false, "whether only generate enum protos and dont do any go generation")
-	proto           = flag.Bool("proto", false, "wheter or not to generate protobuffer enum counterpart file")
-	protoOutput     = flag.String("proto-output", "", "proto output file name; default srcdir/<protoPkg>/<type>.proto if one type srcdir/<protoPkg>/enums.proto if more than one")
-	protoPkg        = flag.String("proto-pkg", "", "proto pkg name (default pb)")
-	protoGoPkg      = flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
-	graphql         = flag.Bool("graphql", false, "whether or not to generate graphql types")
-	graphqlDir      = flag.String("graphql-dir", "", "graphql output directory name; required if graphql-output not provided")
-	graphqlOutput   = flag.String("graphql-output", "", "graphql output file name")
-	graphqlOnly     = flag.Bool("graphql-only", false, "whether only to generate graphql types (and do not do any generation)")
-	graphqlPrefix   = flag.String("graphql-prefix", "", "optional prefix for graphql type; default: package name + type name")
+	typeNames            = flag.String("type", "", "comma-separated list of type names; must be set")
+	sql                  = flag.Bool("sql", true, "if true, the Scanner and Valuer interface will be implemented.")
+	json                 = flag.Bool("json", true, "if true, json marshaling methods will be generated. Default: false")
+	yaml                 = flag.Bool("yaml", true, "if true, yaml marshaling methods will be generated. Default: false")
+	text                 = flag.Bool("text", true, "if true, text marshaling methods will be generated. Default: flase")
+	output               = flag.String("output", "", "output file name; default srcdir/<type>_gen.go if one type specified, srcdir/enums_gen.go if more than one")
+	transformMethod      = flag.String("transform", "noop", "enum item name transformation method (bno. Default: noop")
+	trimPrefix           = flag.String("trimprefix", "", "transform each item name by removing a prefix. Default: \"\"")
+	lineComment          = flag.Bool("linecomment", true, "use line comment text as printed text when present")
+	protoOnly            = flag.Bool("proto-only", false, "whether only generate enum protos and dont do any go generation")
+	proto                = flag.Bool("proto", false, "wheter or not to generate protobuffer enum counterpart file")
+	protoOutput          = flag.String("proto-output", "", "proto output file name; default srcdir/<protoPkg>/<type>.proto if one type srcdir/<protoPkg>/enums.proto if more than one")
+	protoPkg             = flag.String("proto-pkg", "", "proto pkg name (default pb)")
+	protoGoPkg           = flag.String("proto-go-pkg", "", "if supplied will add as value for go_package option added to proto, i.e.  'option go_package = xxxx' ")
+	graphql              = flag.Bool("graphql", false, "whether or not to generate graphql types")
+	graphqlDir           = flag.String("graphql-dir", "", "graphql output directory name; required if graphql-output not provided")
+	graphqlOutput        = flag.String("graphql-output", "", "graphql output file name")
+	graphqlOnly          = flag.Bool("graphql-only", false, "whether only to generate graphql types (and do not do any generation)")
+	graphqlPrefix        = flag.String("graphql-prefix", "", "optional prefix for graphql type; default: package name + type name")
 	gqlShouldSuffixUndef = flag.Bool("gql-should-suffix-undef", false, "whether to add a suffix to UNDEFINED")
-	gqlUndefSuffix  = flag.String("gql-undef-suffix", "", "optional suffix for the UNDEFINED case only (default: type name)")
+	gqlUndefSuffix       = flag.String("gql-undef-suffix", "", "optional suffix for the UNDEFINED case only (default: type name)")
 )
 
 var comments arrayFlags
@@ -95,35 +96,35 @@ func main() {
 		os.Exit(2)
 	}
 	types := strings.Split(*typeNames, ",")
-
 	// We accept either one directory or a list of files. Which do we have?
 	args := flag.Args()
 	if len(args) == 0 {
 		// Default: process whole package in current directory.
 		args = []string{"."}
 	}
-
 	// Parse the package once.
 	var (
 		dir string
 		g   Generator
 	)
-
 	if len(args) == 1 && isDirectory(args[0]) {
 		dir = args[0]
 	} else {
 		dir = filepath.Dir(args[0])
 	}
+
 	g.parsePackage(args)
 	if *proto {
 		g.buildProto(types, dir)
 	}
+
 	if *protoOnly {
 		return
 	}
 	if *graphql {
 		g.buildGraphQL(types, dir)
 	}
+
 	if *graphqlOnly {
 		return
 	}
@@ -297,7 +298,7 @@ type Package struct {
 // parsePackage exits if there is an error.
 func (g *Generator) parsePackage(patterns []string) {
 	cfg := &packages.Config{
-		Mode: packages.LoadSyntax,
+		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedImports | packages.NeedTypes | packages.NeedTypesSizes | packages.NeedSyntax | packages.NeedTypesInfo,
 		// TODO: Need to think about constants in test files. Maybe write type_string_test.go
 		// in a separate pass? For later.
 		Tests: false,
@@ -421,6 +422,7 @@ func (g *Generator) generate(typeName string, includeJSON, includeYAML, includeS
 	if len(values) == 0 {
 		log.Fatalf("no values defined for type %s", typeName)
 	}
+
 	runs := splitIntoRuns(values)
 	// The decision of which pattern to use depends on the number of
 	// runs in the numbers. If there's only one, it's easy. For more than
@@ -715,6 +717,7 @@ func (g *Generator) buildOneRun(runs [][]Value, typeName string) {
 }
 
 // Arguments to format are:
+//
 //	[1]: type name
 //	[2]: size of index element (8 for uint8 etc.)
 //	[3]: less than zero check (for signed types)
